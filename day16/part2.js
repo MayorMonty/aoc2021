@@ -29,7 +29,13 @@ function readPacket(binary) {
     }
     const value = parseInt(buffer, 2);
 
-    return { type: "literal", typeID, version, value, remaining: binary.join("") };
+    return {
+      type: "literal",
+      typeID,
+      version,
+      value,
+      remaining: binary.join(""),
+    };
   } else {
     const mode = binary.splice(0, 1)[0];
     if (mode == "0") {
@@ -75,52 +81,51 @@ function readPacket(binary) {
 }
 
 function compute(packet) {
-
   if (packet.type == "literal") {
     return packet.value;
-  };
+  }
 
-  // Compute the values of the subpackets
+  // Compute the values of the sub packets
   const values = packet.packets.map(compute);
-  switch(packet.typeID) {
+  switch (packet.typeID) {
     case 0: {
       return values.reduce((a, b) => a + b, 0);
-    };
+    }
     case 1: {
       return values.reduce((a, b) => a * b, 1);
-    };
+    }
     case 2: {
       return values.reduce((a, b) => Math.min(a, b), Infinity);
-    };
+    }
     case 3: {
       return values.reduce((a, b) => Math.max(a, b), -Infinity);
-    };
+    }
     case 5: {
       const left = values[0];
       const right = values[1];
 
       return left > right ? 1 : 0;
-    };
+    }
     case 6: {
       const left = values[0];
       const right = values[1];
 
       return left < right ? 1 : 0;
-    };
+    }
     case 7: {
       const left = values[0];
       const right = values[1];
 
       return left == right ? 1 : 0;
-    };
-  };
-};
+    }
+  }
+}
 
 (async function () {
   const input = await fs.readFile("in", "utf8");
   const binary = hexToBinary(input);
   const packet = readPacket(binary);
-  const value = compute(packet);  
+  const value = compute(packet);
 
   console.log(value);
 })();

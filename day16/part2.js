@@ -1,5 +1,4 @@
-const { promises: fs, read } = require("fs");
-const { exit } = require("process");
+const { promises: fs } = require("fs");
 
 function zeros(str, length) {
   while (str.length < length) {
@@ -126,6 +125,7 @@ function compute(packet) {
   const binary = hexToBinary(input);
   const packet = readPacket(binary);
   const value = compute(packet);
-
+  
+  console.log(packet);
   console.log(value);
 })();
